@@ -140,3 +140,6 @@ perf.data.*
 .vars
 .github/test-events/
 __pycache__/
+
+# AbytekSlang specifics
+/Build
