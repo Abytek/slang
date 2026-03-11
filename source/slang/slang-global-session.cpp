@@ -783,6 +783,8 @@ Session::createSession(slang::SessionDesc const& inDesc, slang::ISession** outSe
 
     RefPtr<Linkage> linkage = new Linkage(this, astBuilder, getBuiltinLinkage());
 
+    linkage->m_abytekCustomizationConfig = desc.abytekCustomizationConfig;
+
     if (desc.skipSPIRVValidation)
     {
         linkage->m_optionSet.set(CompilerOptionName::SkipSPIRVValidation, true);

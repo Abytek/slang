@@ -4258,14 +4258,67 @@ RefPtr<ProgramLayout> generateParameterBindings(TargetProgram* targetProgram, Di
         globalConstantBufferBinding = _allocateConstantBufferBinding(&context);
     }
 
-    // Now that all of the explicit bindings have been dealt with
-    // and we've also allocate any space/buffer that is required
-    // for global-scope parameters, we will go through the
-    // shader parameters and entry points yet again, in order
-    // to actually allocate specific bindings/registers to
-    // parameters and entry points that need them.
-    //
-    _completeBindings(&context, program);
+    // Abytek customization 
+    const auto& abytekCustomizationConfig = context.getLinkage()->m_abytekCustomizationConfig;
+    if (abytekCustomizationConfig.overrideParameterBindings.size())
+    {
+        for (const auto& parameter : context.shared->parameters)
+        {
+            auto varLayout = parameter->varLayout;
+            auto typeLayout = varLayout->typeLayout;
+            for (auto typeRes : typeLayout->resourceInfos)
+            {
+                auto kind = typeRes.kind;
+
+                // We want to ignore resource kinds for which the user
+                // has specified an explicit binding, since those won't
+                // go into our contiguously allocated range.
+                //
+                auto& bindingInfo = parameter->bindingInfo[(int)kind];
+                if (bindingInfo.count.compare(0) != std::partial_ordering::equivalent)
+                {
+                    continue;
+                }
+
+                auto VarNameText = varLayout->getName()->text;
+                std::string VarName = VarNameText.begin();
+                auto It = abytekCustomizationConfig.overrideParameterBindings.find(VarName);
+                if (It != abytekCustomizationConfig.overrideParameterBindings.end())
+                {
+                    const auto& ParamBinding = It->second;
+                    bindingInfo.index = ParamBinding.shaderRegister;
+                    bindingInfo.space = ParamBinding.registerSpace;
+                    if (ParamBinding.count == ~uint32_t(0))
+                    {
+                        bindingInfo.count = LayoutSize::infinite();
+                    }
+                    else
+                    {
+                        bindingInfo.count = ParamBinding.count;
+                    }
+                }
+                else
+                {
+                    Diagnostics::Unexpected Diagnostic;
+                    Diagnostic.message = "Invalid parameter name \"" + VarNameText + "\", not found in AbytekParameterBindings";
+                    Diagnostic.location = SourceLoc();
+                    sink->diagnose(Diagnostic);
+                    return nullptr;
+                }
+            }
+        }
+    }
+    // else
+    {
+        // Now that all of the explicit bindings have been dealt with
+        // and we've also allocate any space/buffer that is required
+        // for global-scope parameters, we will go through the
+        // shader parameters and entry points yet again, in order
+        // to actually allocate specific bindings/registers to
+        // parameters and entry points that need them.
+        //
+        _completeBindings(&context, program);
+    }
 
     // We may need to finally do any shifting if we have HLSLToVulkanLayoutOptions
     _maybeApplyHLSLToVulkanShifts(&context, globalConstantBufferBinding, targetProgram, sink);
