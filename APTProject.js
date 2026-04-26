@@ -1,6 +1,2 @@
 
-console.log(`Importing slang (Abytek)`);
-
-APT.Project.ApplyPrototype(
-    APT.Templates.CMake.ProjectPrototypes.Default
-);
+APT.Extensions.CMake.Setup(this);
