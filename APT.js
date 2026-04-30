@@ -1,3 +1,3 @@
 
-APT.Extensions.ProjectLinker.Setup(this);
+APT.Extensions.ScopeLinker.Setup(this);
 APT.Extensions.CMake.Setup(this);
