@@ -57,8 +57,10 @@ SlangResult tryLoadBuiltinModuleFromCache(
     if (cacheData.getSizeInBytes() < sizeof(uint64_t))
         return SLANG_FAIL;
     auto cacheTimestamp = *(uint64_t*)(cacheData.getData());
+#ifdef ABYTEK_SLANG_ENABLE_BUILTIN_SHADER_MODULE_TIMESTAMP_CHECKING
     if (cacheTimestamp != currentLibTimestamp)
         return SLANG_FAIL;
+#endif
     SLANG_RETURN_ON_FAIL(globalSession->loadBuiltinModule(
         builtinModuleName,
         (uint8_t*)cacheData.getData() + sizeof(uint64_t),
