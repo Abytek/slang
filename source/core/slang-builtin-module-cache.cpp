@@ -23,8 +23,10 @@ SlangResult BuiltinModuleCache::read(
 
     uint64_t cacheTimestamp = 0;
     memcpy(&cacheTimestamp, outStorage.getData(), sizeof(cacheTimestamp));
+#ifdef ABYTEK_SLANG_ENABLE_BUILTIN_SHADER_MODULE_TIMESTAMP_CHECKING
     if (cacheTimestamp != expectedLibraryTimestamp)
         return SLANG_FAIL;
+#endif
 
     outModuleData = (const uint8_t*)outStorage.getData() + sizeof(cacheTimestamp);
     outModuleSize = outStorage.getSizeInBytes() - sizeof(cacheTimestamp);
