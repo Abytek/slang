@@ -104,6 +104,8 @@ public:
 
     CompilerOptionSet m_optionSet;
 
+    slang::SessionDesc::AbytekCustomizationConfig m_abytekCustomizationConfig;
+
     ISlangUnknown* getInterface(const Guid& guid);
 
     SLANG_NO_THROW slang::IGlobalSession* SLANG_MCALL getGlobalSession() override;

@@ -2462,6 +2462,18 @@ struct ISession;
 
 #ifdef __cplusplus
 
+#include <map>
+#include <string>
+
+/** Abytek customization (declare)
+ */
+namespace Slang
+{
+    struct ParameterBindingContext;
+    struct ParameterBindingInfo;
+    class VarLayout;
+}
+
 /* Helper interfaces for C++ users */
 namespace slang
 {
@@ -4475,6 +4487,19 @@ struct SessionDesc
     /** Whether to skip SPIRV validation.
      */
     bool skipSPIRVValidation = false;
+
+    /** Abytek customization
+     */
+    struct AbytekCustomizationConfig
+    {
+        struct ParameterBinding
+        {
+            uint32_t shaderRegister = 0;
+            uint32_t registerSpace = 0;
+            uint32_t count = 0;
+        };
+        std::map<std::string, ParameterBinding> overrideParameterBindings;
+    } abytekCustomizationConfig;
 };
 
 enum class ContainerType
